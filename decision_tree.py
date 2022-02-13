@@ -49,6 +49,7 @@ class Node:
 
         # get percent of each class in dataset
         self.concat_data = pd.concat([self.Y, self.X], axis=1)
+        print(self.concat_data.dtypes)
         self.class_count_dictionary = {i: {} for i in self.classes}
         for i in self.classes:
             self.class_count_dictionary[i].update({'Count': len(self.concat_data.loc[self.concat_data[self.Y_name] == i])})
@@ -57,8 +58,18 @@ class Node:
     # method to find the best feature using cross-entropy loss
     def pick_attribute(self):
 
+        # split data into categorical and continuous dataframes
+        numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
+        continuous_data = self.concat_data.select_dtypes(include=numerics)
+        continuous_columns = continuous_data.columns.tolist()
+        continuous_data = pd.concat([self.Y, continuous_data], axis=1)
+        categorical_data = self.concat_data.drop(columns=continuous_columns, axis=1)
+        categorical_columns = categorical_data.columns.tolist()
+        categorical_columns.remove(self.Y_name)
+
+        # get information gain for each categorical feature
         feature_results = {}
-        for i in self.features:
+        for i in categorical_columns:
             # get categories for each feature and number of instances
             feature_categories = np.unique(self.X[i])
             total_count = len(self.concat_data)
@@ -102,6 +113,10 @@ class Node:
             
             information_gain = h_prior - remainder
             feature_results.update({i: information_gain})
+        
+        # get information gain for each continuous feature
+        for i in continuous_columns:
+            print()
 
         # return feature with the highest information gain
         self.best_feature = max(feature_results, key=feature_results.get)
@@ -196,7 +211,7 @@ class DecisionTree:
 
 if __name__ == "__main__":
 
-    golf_data = pd.read_csv('data\\golf_data.csv')
+    golf_data = pd.read_csv('data\\golf_data2.csv')
     X_train = golf_data.drop(columns='PlayGolf', axis=1)
     Y_train = golf_data['PlayGolf']    
 
