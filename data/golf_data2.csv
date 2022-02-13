@@ -10,6 +10,6 @@ Yes,Rainy,Mild,69,Weak
 Yes,Sunny,Mild,65,Weak
 Yes,Overcast,Mild,77,Weak
 Yes,Overcast,Hot,74,Strong
-No,Rain,Mild,77,Strong
-No,Rain,Cool,73,Weak
-Yes,Rain,Mild,78,Strong
+No,Rainy,Mild,77,Strong
+No,Rainy,Cool,73,Weak
+Yes,Rainy,Mild,78,Strong
