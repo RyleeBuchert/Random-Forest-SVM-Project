@@ -34,9 +34,9 @@ class Node:
 
         # stopping point/split information
         self.depth = depth if depth else 0
-        self.max_depth = max_depth if max_depth else 5
-        self.min_split_samples = min_samples if min_samples else 20
-        self.split_method = split if split else 'Cross-Entropy'
+        self.max_depth = max_depth
+        self.min_split_samples = min_samples
+        self.split_method = split
 
         # get all classes
         self.classes = np.unique(self.Y)
@@ -148,11 +148,12 @@ class Node:
                         X = feature_subsets_dict[i].drop(columns=self.Y_name),
                         Y = feature_subsets_dict[i][self.Y_name],
                         is_leaf = True,
-                        parent=self,
+                        parent = self,
                         feature_cat = i,
-                        depth=self.depth + 1,
-                        max_depth=self.max_depth,
-                        min_samples=self.min_split_samples
+                        depth = self.depth + 1,
+                        max_depth = self.max_depth,
+                        min_samples = self.min_split_samples,
+                        split = self.split_method
                         )})
                     self.children.append(new_nodes_dict[i])                    
                 
@@ -161,11 +162,12 @@ class Node:
                     new_nodes_dict.update({i: Node(
                         X = feature_subsets_dict[i].drop(columns=self.Y_name),
                         Y = feature_subsets_dict[i][self.Y_name],
-                        parent=self,
+                        parent = self,
                         feature_cat = i,
-                        depth=self.depth + 1,
-                        max_depth=self.max_depth,
-                        min_samples=self.min_split_samples
+                        depth = self.depth + 1,
+                        max_depth = self.max_depth,
+                        min_samples = self.min_split_samples,
+                        split = self.split_method
                         )})
                     self.children.append(new_nodes_dict[i])  
                     new_nodes_dict[i].grow_tree()
@@ -178,9 +180,17 @@ class DecisionTree:
         self.root = None
     
     # method to build tree
-    def build_tree(self, X, Y, max_depth, min_samples, split_method): # add hyperparameters
+    def build_tree(self, X, Y, max_depth=None, min_samples=None, split_method=None): # add hyperparameters
+        self.max_depth = max_depth if max_depth else 10
+        self.min_split_samples = min_samples if min_samples else 20
+        self.split_method = split_method if split_method else 'Cross-Entropy'
         if self.root is None:
-            self.root = Node(is_root='True', X=X, Y=Y, max_depth=max_depth, min_samples=min_samples, split=split_method)
+            self.root = Node(is_root='True',
+                            X = X,
+                            Y = Y,
+                            max_depth = self.max_depth,
+                            min_samples = self.min_split_samples,
+                            split = self.split_method)
         self.root.grow_tree()
 
 
