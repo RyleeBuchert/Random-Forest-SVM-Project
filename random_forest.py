@@ -60,13 +60,25 @@ class RandomForest:
         col_subset.insert(0, self.Y_name)
         return data_sample[col_subset]
 
+    # predict random forest accuracy (need to finish)
+    def predict(self, X_test, Y_test):
+        for tree in self.forest:
+            results = tree.predict(X_test, Y_test)
+
+
 
 if __name__ == "__main__":
 
-    golf_data = pd.read_csv('data\\golf_data.csv')
+    # import train and test data
+    golf_data = pd.read_csv('data\\golf_data2.csv')
     X_train = golf_data.drop(columns='PlayGolf', axis=1)
     Y_train = golf_data['PlayGolf']
 
+    golf_test = pd.read_csv('data\\golf_data2_test.csv')
+    X_test = golf_test.drop(columns='PlayGolf', axis=1)
+    Y_test = golf_test['PlayGolf']
+
+    # train random forest and predict results
     RF = RandomForest()
     RF.grow_forest(X_train, Y_train)
-    print()
+    print(RF.predict(X_test, Y_test))

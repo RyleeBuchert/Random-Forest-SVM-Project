@@ -53,13 +53,13 @@ class Node:
         for i in self.classes:
             self.class_count_dictionary[i].update({'Count': len(self.concat_data.loc[self.concat_data[self.Y_name] == i])})
             self.class_count_dictionary[i].update({'Percent': (self.class_count_dictionary[i]['Count'] / len(self.concat_data))})
+        self.numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
 
     # method to find the best feature using cross-entropy loss
     def pick_attribute(self):
 
         # split data into categorical and continuous dataframes
-        numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
-        continuous_data = self.concat_data.select_dtypes(include=numerics)
+        continuous_data = self.concat_data.select_dtypes(include=self.numerics)
         continuous_columns = continuous_data.columns.tolist()
         continuous_data = pd.concat([self.Y, continuous_data], axis=1)
         
@@ -210,11 +210,10 @@ class Node:
         
         # check stop conditions and grow tree
         if (self.depth < self.max_depth) and (len(self.concat_data) >= self.min_split_samples):
-            numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
             self.pick_attribute()
 
             # create nodes if continuous best feature
-            if self.concat_data[self.best_feature].dtypes in numerics:
+            if self.concat_data[self.best_feature].dtypes in self.numerics:
                 new_nodes_dict = {}
                 feature_subsets_dict = {
                     'Smaller': self.concat_data[self.concat_data[self.best_feature] <= self.feature_splits[self.best_feature]],
@@ -235,7 +234,6 @@ class Node:
                             split = self.split_method
                         )})
                         self.children.append(new_nodes_dict[i])
-
                     # else, create a new decision node and continue recursive grow
                     else:
                         new_nodes_dict.update({i: Node(
@@ -273,7 +271,6 @@ class Node:
                             split = self.split_method
                             )})
                         self.children.append(new_nodes_dict[i])                    
-                    
                     # else, create a new decision node and continue recursive grow
                     else:
                         new_nodes_dict.update({i: Node(
@@ -290,14 +287,17 @@ class Node:
                         new_nodes_dict[i].grow_tree()
 
 
+# decision tree wrapper class, built on node class
 class DecisionTree:
 
     # class constructor
     def __init__(self):
+        self.numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
         self.root = None
     
     # method to build tree
     def build_tree(self, X, Y, max_depth=None, min_samples=None, split_method=None): # add hyperparameters
+        self.Y_name = Y.name
         self.max_depth = max_depth if max_depth else 10
         self.min_split_samples = min_samples if min_samples else 20
         self.split_method = split_method if split_method else 'Cross-Entropy'
@@ -309,13 +309,75 @@ class DecisionTree:
                             min_samples = self.min_split_samples,
                             split = self.split_method)
         self.root.grow_tree()
+    
+    # method to predict results and get model accuracy
+    def predict(self, X_test, Y_test):
+        # create combined dataframe and initialize predictions list
+        concat_test_data = pd.concat([Y_test, X_test], axis=1)
+        self.prediction_list = []
 
+        # loop through all test instances and predict using tree
+        for idx in concat_test_data.index.tolist():
+            current_node = self.root
+            current_row = concat_test_data.iloc[[idx]]
+            split_feature_val = current_row.iloc[0][current_node.best_feature]
+            if type(split_feature_val) is str:
+                for node in current_node.children:
+                    if split_feature_val == node.feature_category:
+                        self.traverse_tree(node, current_row)
+            elif split_feature_val.dtype in self.numerics:
+                for node in current_node.children:
+                    if node.feature_category[0] == 'Smaller' and split_feature_val <= node.feature_category[1]:
+                        self.traverse_tree(node, current_row)
+                        break
+                    elif node.feature_category[0] == 'Larger' and split_feature_val > node.feature_category[1]:
+                        self.traverse_tree(node, current_row)
+                        break
+
+        # count correct answers and return model accuracy
+        total_correct = 0
+        total_number = len(concat_test_data)
+        for idx, prediction in enumerate(self.prediction_list):
+            if prediction == Y_test.loc[idx]:
+                total_correct += 1
+        return (self.prediction_list, (total_correct/total_number))
+
+    # recursive method to traverse tree and generate predictions
+    def traverse_tree(self, node, row):
+        # if leaf node, return answer
+        if node.is_leaf:
+            prediction = list(node.class_count_dictionary.keys())[0]
+            self.prediction_list.append(prediction)
+            return
+        # else, traverse down next level in tree
+        else:
+            split_val = row.iloc[0][node.best_feature]
+            if type(split_val) is str:
+                for child in node.children:
+                    if split_val == child.feature_category:
+                        self.traverse_tree(child, row)
+                        return
+            elif split_val.dtype in self.numerics:
+                for child in node.children:
+                    if child.feature_category[0] == 'Smaller' and split_val <= child.feature_category[1]:
+                        self.traverse_tree(child, row)
+                        return
+                    elif child.feature_category[0] == 'Larger' and split_val > child.feature_category[1]:
+                        self.traverse_tree(child, row)
+                        return
 
 if __name__ == "__main__":
 
+    # import train and test data
     golf_data = pd.read_csv('data\\golf_data2.csv')
     X_train = golf_data.drop(columns='PlayGolf', axis=1)
-    Y_train = golf_data['PlayGolf']    
+    Y_train = golf_data['PlayGolf']
 
+    golf_test = pd.read_csv('data\\golf_data2_test.csv')
+    X_test = golf_test.drop(columns='PlayGolf', axis=1)
+    Y_test = golf_test['PlayGolf']
+
+    # construct decision tree classifier and test accuracy
     DT = DecisionTree()
     DT.build_tree(X_train, Y_train, max_depth=5, min_samples=4, split_method='Cross-Entropy')
+    print(DT.predict(X_test, Y_test))
