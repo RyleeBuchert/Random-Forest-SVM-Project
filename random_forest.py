@@ -62,21 +62,16 @@ class RandomForest:
 
     # predict random forest accuracy (need to finish)
     def predict(self, X_test, Y_test):
-        # test_concat_data = pd.concat([Y_test, X_test], axis=1)
-        # for idx in test_concat_data.index.tolist():
-        #     row = test_concat_data.iloc[[idx]]
-        #     for tree in self.forest:
-
+        # iterate over trees in forest and generate predictions
         forest_predictions = []
         for tree in self.forest:
             forest_predictions.append(tree.predict(X_test, Y_test)[0])
-
-        forest_predictions_df = pd.DataFrame(forest_predictions)
+        
+        # remove invalid predictions and create df
         for pred in forest_predictions:
-            print()
-
-
-
+            if len(pred) < len(Y_test):
+                forest_predictions.remove(pred)
+        forest_predictions_df = pd.DataFrame(forest_predictions)
 
 
 if __name__ == "__main__":
@@ -92,5 +87,5 @@ if __name__ == "__main__":
 
     # train random forest and predict results
     RF = RandomForest()
-    RF.grow_forest(X_train, Y_train, num_trees=10)
+    RF.grow_forest(X_train, Y_train, num_trees=50)
     print(RF.predict(X_test, Y_test))
