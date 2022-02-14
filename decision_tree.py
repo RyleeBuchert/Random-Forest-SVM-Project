@@ -49,10 +49,10 @@ class Node:
 
         # get percent of each class in dataset
         self.concat_data = pd.concat([self.Y, self.X], axis=1)
-        self.class_count_dictionary = {i: {} for i in self.classes}
+        self.class_count_dictionary = {}
         for i in self.classes:
-            self.class_count_dictionary[i].update({'Count': len(self.concat_data.loc[self.concat_data[self.Y_name] == i])})
-            self.class_count_dictionary[i].update({'Percent': (self.class_count_dictionary[i]['Count'] / len(self.concat_data))})
+            count = len(self.concat_data.loc[self.concat_data[self.Y_name] == i])
+            self.class_count_dictionary.update({i: count / len(self.concat_data)})
         self.numerics = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
 
     # method to find the best feature using cross-entropy loss
@@ -119,7 +119,7 @@ class Node:
             # get information gain for best continuous value
             h_prior_list = []
             for k in self.classes:
-                h_prior_list.append(self.class_count_dictionary[k]['Percent'])
+                h_prior_list.append(self.class_count_dictionary[k])
             
             if self.split_method == 'Cross-Entropy':
                 h_prior = self.cross_entropy(h_prior_list)
@@ -166,7 +166,7 @@ class Node:
             # get information gain for each attribute
             h_prior_list = []
             for k in self.classes:
-                h_prior_list.append(self.class_count_dictionary[k]['Percent'])
+                h_prior_list.append(self.class_count_dictionary[k])
             
             if self.split_method == 'Cross-Entropy':
                 h_prior = self.cross_entropy(h_prior_list)
@@ -207,84 +207,82 @@ class Node:
 
     # method to build a decision tree with X/Y training sets
     def grow_tree(self):
-        
-        # check stop conditions and grow tree
-        if (self.depth < self.max_depth) and (len(self.concat_data) >= self.min_split_samples):
-            self.pick_attribute()
+        # pick best attribute
+        self.pick_attribute()
 
-            # create nodes if continuous best feature
-            if self.concat_data[self.best_feature].dtypes in self.numerics:
-                new_nodes_dict = {}
-                feature_subsets_dict = {
-                    'Smaller': self.concat_data[self.concat_data[self.best_feature] <= self.feature_splits[self.best_feature]],
-                    'Larger': self.concat_data[self.concat_data[self.best_feature] > self.feature_splits[self.best_feature]]
-                }
-                for i in feature_subsets_dict:
-                    # if only one class value remains, max depth is reached, or feature subset too small, create a leaf node
-                    if (len(np.unique(feature_subsets_dict[i][self.Y_name]))==1) or (self.depth==self.max_depth) or (len(feature_subsets_dict[i])<self.min_split_samples):
-                        new_nodes_dict.update({i: Node(
-                            X = feature_subsets_dict[i].drop(columns=self.Y_name),
-                            Y = feature_subsets_dict[i][self.Y_name],
-                            is_leaf = True,
-                            parent = self,
-                            feature_cat = (i, self.feature_splits[self.best_feature]),
-                            depth = self.depth + 1,
-                            max_depth = self.max_depth,
-                            min_samples = self.min_split_samples,
-                            split = self.split_method
-                        )})
-                        self.children.append(new_nodes_dict[i])
-                    # else, create a new decision node and continue recursive grow
-                    else:
-                        new_nodes_dict.update({i: Node(
-                            X = feature_subsets_dict[i].drop(columns=self.Y_name),
-                            Y = feature_subsets_dict[i][self.Y_name],
-                            parent = self,
-                            feature_cat = (i, self.feature_splits[self.best_feature]),
-                            depth = self.depth + 1,
-                            max_depth = self.max_depth,
-                            min_samples = self.min_split_samples,
-                            split = self.split_method
-                        )})
-                        self.children.append(new_nodes_dict[i])
-                        new_nodes_dict[i].grow_tree()
+        # create nodes if continuous best feature
+        if self.concat_data[self.best_feature].dtypes in self.numerics:
+            new_nodes_dict = {}
+            feature_subsets_dict = {
+                'Smaller': self.concat_data[self.concat_data[self.best_feature] <= self.feature_splits[self.best_feature]],
+                'Larger': self.concat_data[self.concat_data[self.best_feature] > self.feature_splits[self.best_feature]]
+            }
+            for i in feature_subsets_dict:
+                # if only one class value remains, max depth is reached, or feature subset too small, create a leaf node
+                if (len(np.unique(feature_subsets_dict[i][self.Y_name]))==1) or (self.depth==self.max_depth) or (len(feature_subsets_dict[i])<self.min_split_samples):
+                    new_nodes_dict.update({i: Node(
+                        X = feature_subsets_dict[i].drop(columns=self.Y_name),
+                        Y = feature_subsets_dict[i][self.Y_name],
+                        is_leaf = True,
+                        parent = self,
+                        feature_cat = (i, self.feature_splits[self.best_feature]),
+                        depth = self.depth + 1,
+                        max_depth = self.max_depth,
+                        min_samples = self.min_split_samples,
+                        split = self.split_method
+                    )})
+                    self.children.append(new_nodes_dict[i])
+                # else, create a new decision node and continue recursive grow
+                else:
+                    new_nodes_dict.update({i: Node(
+                        X = feature_subsets_dict[i].drop(columns=self.Y_name),
+                        Y = feature_subsets_dict[i][self.Y_name],
+                        parent = self,
+                        feature_cat = (i, self.feature_splits[self.best_feature]),
+                        depth = self.depth + 1,
+                        max_depth = self.max_depth,
+                        min_samples = self.min_split_samples,
+                        split = self.split_method
+                    )})
+                    self.children.append(new_nodes_dict[i])
+                    new_nodes_dict[i].grow_tree()
             
-            # create nodes if categorical best feature
-            else:
-                best_feature_categories = np.unique(self.X[self.best_feature])
-                new_nodes_dict = {}
-                feature_subsets_dict = {}
-                for i in best_feature_categories:
-                    feature_subsets_dict.update({i: self.concat_data.loc[self.concat_data[self.best_feature] == i]})
+        # create nodes if categorical best feature
+        else:
+            best_feature_categories = np.unique(self.X[self.best_feature])
+            new_nodes_dict = {}
+            feature_subsets_dict = {}
+            for i in best_feature_categories:
+                feature_subsets_dict.update({i: self.concat_data.loc[self.concat_data[self.best_feature] == i]})
 
-                    # if only one class value remains, max depth is reached, or feature subset too small, create a leaf node
-                    if (len(np.unique(feature_subsets_dict[i][self.Y_name]))==1) or (self.depth==self.max_depth) or (len(feature_subsets_dict[i])<self.min_split_samples):
-                        new_nodes_dict.update({i: Node(
-                            X = feature_subsets_dict[i].drop(columns=self.Y_name),
-                            Y = feature_subsets_dict[i][self.Y_name],
-                            is_leaf = True,
-                            parent = self,
-                            feature_cat = i,
-                            depth = self.depth + 1,
-                            max_depth = self.max_depth,
-                            min_samples = self.min_split_samples,
-                            split = self.split_method
-                            )})
-                        self.children.append(new_nodes_dict[i])                    
-                    # else, create a new decision node and continue recursive grow
-                    else:
-                        new_nodes_dict.update({i: Node(
-                            X = feature_subsets_dict[i].drop(columns=self.Y_name),
-                            Y = feature_subsets_dict[i][self.Y_name],
-                            parent = self,
-                            feature_cat = i,
-                            depth = self.depth + 1,
-                            max_depth = self.max_depth,
-                            min_samples = self.min_split_samples,
-                            split = self.split_method
-                            )})
-                        self.children.append(new_nodes_dict[i])  
-                        new_nodes_dict[i].grow_tree()
+                # if only one class value remains, max depth is reached, or feature subset too small, create a leaf node
+                if (len(np.unique(feature_subsets_dict[i][self.Y_name]))==1) or (self.depth==self.max_depth) or (len(feature_subsets_dict[i])<self.min_split_samples):
+                    new_nodes_dict.update({i: Node(
+                        X = feature_subsets_dict[i].drop(columns=self.Y_name),
+                        Y = feature_subsets_dict[i][self.Y_name],
+                        is_leaf = True,
+                        parent = self,
+                        feature_cat = i,
+                        depth = self.depth + 1,
+                        max_depth = self.max_depth,
+                        min_samples = self.min_split_samples,
+                        split = self.split_method
+                        )})
+                    self.children.append(new_nodes_dict[i])                    
+                # else, create a new decision node and continue recursive grow
+                else:
+                    new_nodes_dict.update({i: Node(
+                        X = feature_subsets_dict[i].drop(columns=self.Y_name),
+                        Y = feature_subsets_dict[i][self.Y_name],
+                        parent = self,
+                        feature_cat = i,
+                        depth = self.depth + 1,
+                        max_depth = self.max_depth,
+                        min_samples = self.min_split_samples,
+                        split = self.split_method
+                        )})
+                    self.children.append(new_nodes_dict[i])  
+                    new_nodes_dict[i].grow_tree()
 
 
 # decision tree wrapper class, built on node class
@@ -302,7 +300,7 @@ class DecisionTree:
         self.min_split_samples = min_samples if min_samples else 20
         self.split_method = split_method if split_method else 'Cross-Entropy'
         if self.root is None:
-            self.root = Node(is_root='True',
+            self.root = Node(is_root = True,
                             X = X,
                             Y = Y,
                             max_depth = self.max_depth,
@@ -325,6 +323,7 @@ class DecisionTree:
                 for node in current_node.children:
                     if split_feature_val == node.feature_category:
                         self.traverse_tree(node, current_row)
+                        break
             elif split_feature_val.dtype in self.numerics:
                 for node in current_node.children:
                     if node.feature_category[0] == 'Smaller' and split_feature_val <= node.feature_category[1]:
@@ -346,7 +345,7 @@ class DecisionTree:
     def traverse_tree(self, node, row):
         # if leaf node, return answer
         if node.is_leaf:
-            prediction = list(node.class_count_dictionary.keys())[0]
+            prediction = max(node.class_count_dictionary, key=node.class_count_dictionary.get)
             self.prediction_list.append(prediction)
             return
         # else, traverse down next level in tree

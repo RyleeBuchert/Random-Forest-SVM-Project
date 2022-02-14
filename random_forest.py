@@ -41,7 +41,7 @@ class RandomForest:
             X_train = tree_sample.drop(columns=self.Y_name, axis=1)
             Y_train = tree_sample[self.Y_name]
             tree = DecisionTree()
-            tree.build_tree(X_train, Y_train, min_samples=4)
+            tree.build_tree(X_train, Y_train, min_samples=4, max_depth=3)
             self.forest.append(tree)
 
     # get bootstrap aggregation sample
@@ -92,5 +92,5 @@ if __name__ == "__main__":
 
     # train random forest and predict results
     RF = RandomForest()
-    RF.grow_forest(X_train, Y_train, num_trees=25)
+    RF.grow_forest(X_train, Y_train, num_trees=10)
     print(RF.predict(X_test, Y_test))
