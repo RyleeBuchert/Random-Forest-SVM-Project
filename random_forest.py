@@ -45,6 +45,9 @@ class RandomForest:
         # create decision trees and grow forest
         for i in range(self.forest_size):
             tree_sample = self.bootstrap_sample()
+
+            tree_sample.to_csv('test_data\\bootstrap_sample.csv', index=False)
+
             X_train = tree_sample.drop(columns=self.Y_name, axis=1)
             Y_train = tree_sample[self.Y_name]
             tree = DecisionTree()
@@ -55,7 +58,7 @@ class RandomForest:
                             split_method = self.split_method
                             )
             self.forest.append(tree)
-            print(i)
+            print('tree', i, 'done')
 
     # get bootstrap aggregation sample
     def bootstrap_sample(self):
@@ -98,40 +101,125 @@ class RandomForest:
 
 if __name__ == "__main__":
 
-    # # import train and test data
-    # golf_data = pd.read_csv('data\\golf_data.csv')
-    # X_train = golf_data.drop(columns='PlayGolf', axis=1)
-    # Y_train = golf_data['PlayGolf']
+    log_file = open('test_data\\results.txt', 'w')
 
-    # golf_test = pd.read_csv('data\\golf_data_test.csv')
-    # X_test = golf_test.drop(columns='PlayGolf', axis=1)
-    # Y_test = golf_test['PlayGolf']
-
-    # # import spirals data
-    # spirals = pd.read_csv('data\\spirals.csv')
-    # spirals_X = spirals.drop(columns='class', axis=1)
-    # spirals_Y = spirals['class']
-    # X_train, X_test, Y_train, Y_test = train_test_split(spirals_X, spirals_Y, test_size = 0.2)
-
-    # # import blobs data
-    # blobs = pd.read_csv('data\\blobs.csv')
-    # blobs_X = blobs.drop(columns='class', axis=1)
-    # blobs_Y = blobs['class']
-    # X_train, X_test, Y_train, Y_test = train_test_split(blobs_X, blobs_Y, test_size = 0.2)
-
-    # import digit data
-    digit = pd.read_csv('data\\digit_bins.csv')
-    digit_X = digit.drop(columns='label', axis=1)
-    digit_Y = digit['label']
-    X_train, X_test, Y_train, Y_test = train_test_split(digit_X, digit_Y, test_size = 0.2)
-
-    # drop indexes
-    X_train.reset_index(drop=True, inplace=True)
-    Y_train.reset_index(drop=True, inplace=True)
-    X_test.reset_index(drop=True, inplace=True)
-    Y_test.reset_index(drop=True, inplace=True)
+    # import spirals data
+    spirals = pd.read_csv('data\\spirals.csv')
+    spirals_X = spirals.drop(columns='class', axis=1)
+    spirals_Y = spirals['class']
+    X_train, X_test, Y_train, Y_test = train_test_split(spirals_X, spirals_Y, test_size = 0.2)
 
     # train random forest and predict results
-    RF = RandomForest()
-    RF.grow_forest(X_train, Y_train, num_trees=50, min_samples=10, max_depth=5)
-    print(RF.predict(X_test, Y_test)[1])
+    forest_sizes = [50, 100, 150]
+    min_sample_sizes = [2, 5, 10, 20]
+    max_depth = [2, 4, 6]
+    split_methods = ['Misclassification', 'GINI', 'Cross-Entropy']
+    for size in forest_sizes:
+        for sample_size in min_sample_sizes:
+            for depth in max_depth:
+                for split in split_methods:
+                    X_train, X_test, Y_train, Y_test = train_test_split(spirals_X, spirals_Y, test_size = 0.2)
+
+                    X_train.reset_index(drop=True, inplace=True)
+                    Y_train.reset_index(drop=True, inplace=True)
+                    X_test.reset_index(drop=True, inplace=True)
+                    Y_test.reset_index(drop=True, inplace=True)
+
+                    RF = RandomForest()
+                    RF.grow_forest(X_train, Y_train, num_trees=size, min_samples=sample_size, max_depth=depth, split_method=split)
+                    results = RF.predict(X_test, Y_test)[1]
+                
+                    log_file.write('Spirals Data: Forest Size = '+str(size)+', Min Samples = '+str(sample_size)+', Max Depth = '+str(depth)+', Split = '+split+', Model Accuracy = '+str(results) + '\n')
+    log_file.write('\n')
+
+
+    # import blobs data
+    blobs = pd.read_csv('data\\blobs.csv')
+    blobs_X = blobs.drop(columns='class', axis=1)
+    blobs_Y = blobs['class']
+
+    # train random forest and predict results
+    forest_sizes = [50, 100, 150]
+    min_sample_sizes = [2, 5, 10, 20]
+    max_depth = [2, 4, 6]
+    split_methods = ['Misclassification', 'GINI', 'Cross-Entropy']
+    for size in forest_sizes:
+        for sample_size in min_sample_sizes:
+            for depth in max_depth:
+                for split in split_methods:
+                    X_train, X_test, Y_train, Y_test = train_test_split(blobs_X, blobs_Y, test_size = 0.2)
+
+                    X_train.reset_index(drop=True, inplace=True)
+                    Y_train.reset_index(drop=True, inplace=True)
+                    X_test.reset_index(drop=True, inplace=True)
+                    Y_test.reset_index(drop=True, inplace=True)
+
+                    RF = RandomForest()
+                    RF.grow_forest(X_train, Y_train, num_trees=size, min_samples=sample_size, max_depth=depth, split_method=split)
+                    results = RF.predict(X_test, Y_test)[1]
+                
+                    log_file.write('Blobs Data: Forest Size = '+str(size)+', Min Samples = '+str(sample_size)+', Max Depth = '+str(depth)+', Split = '+split+', Model Accuracy = '+str(results) + '\n')
+    log_file.write('\n')
+
+
+    # # import digit data
+    # digit = pd.read_csv('data\\digit_bins.csv')
+    # digit_X = digit.drop(columns='label', axis=1)
+    # digit_Y = digit['label']
+    # X_train, X_test, Y_train, Y_test = train_test_split(digit_X, digit_Y, test_size = 0.2)
+
+
+    # # import adult data
+    # adult_train = pd.read_csv('data\\adult_train.csv')
+    # adult_test = pd.read_csv('data\\adult_test.csv')
+    # X_train = adult_train.drop(columns='income', axis=1)
+    # Y_train = adult_train['income']
+    # X_test = adult_test.drop(columns='income', axis=1)
+    # Y_test = adult_test['income']
+
+
+    # # import ecoli data
+    # ecoli = pd.read_csv('data\\ecoli_data.csv')
+    # ecoli_X = ecoli.drop(columns='location', axis=1)
+    # ecoli_Y = ecoli['location']
+    # X_train, X_test, Y_train, Y_test = train_test_split(ecoli_X, ecoli_Y, test_size = 0.2)
+
+
+    # import mushrooms data
+    mushrooms = pd.read_csv('data\\mushrooms_data.csv')
+    mushrooms_X = mushrooms.drop(columns='label')
+    mushrooms_Y = mushrooms['label']
+    X_train, X_test, Y_train, Y_test = train_test_split(mushrooms_X, mushrooms_Y, test_size = 0.2)
+
+    # train random forest and predict results
+    forest_sizes = [50, 100, 150]
+    min_sample_sizes = [2, 5, 10, 20]
+    max_depth = [2, 4, 6]
+    split_methods = ['Misclassification', 'GINI', 'Cross-Entropy']
+    for size in forest_sizes:
+        for sample_size in min_sample_sizes:
+            for depth in max_depth:
+                for split in split_methods:
+                    X_train, X_test, Y_train, Y_test = train_test_split(mushrooms_X, mushrooms_Y, test_size = 0.2)
+
+                    X_train.reset_index(drop=True, inplace=True)
+                    Y_train.reset_index(drop=True, inplace=True)
+                    X_test.reset_index(drop=True, inplace=True)
+                    Y_test.reset_index(drop=True, inplace=True)
+
+                    RF = RandomForest()
+                    RF.grow_forest(X_train, Y_train, num_trees=size, min_samples=sample_size, max_depth=depth, split_method=split)
+                    results = RF.predict(X_test, Y_test)[1]
+                
+                    log_file.write('Mushrooms Data: Forest Size = '+str(size)+', Min Samples = '+str(sample_size)+', Max Depth = '+str(depth)+', Split = '+split+', Model Accuracy = '+str(results) + '\n')
+    log_file.write('\n')
+
+
+    # # import car data
+    # car = pd.read_csv('data\\car_data.csv')
+    # car_X = car.drop(columns='label')
+    # car_Y = car['label']
+    # X_train, X_test, Y_train, Y_test = train_test_split(car_X, car_Y, test_size = 0.2)
+
+
+    log_file.close()

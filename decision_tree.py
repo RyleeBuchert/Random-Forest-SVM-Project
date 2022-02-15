@@ -63,14 +63,12 @@ class Node:
         continuous_data = self.X.select_dtypes(include=self.numerics)
         continuous_columns = continuous_data.columns.tolist()
         if continuous_columns:
-            continuous_columns = continuous_data.columns.tolist()
             continuous_data = pd.concat([self.Y, continuous_data], axis=1)
         
         categorical_data = self.X.drop(columns=continuous_columns, axis=1)
         categorical_columns = categorical_data.columns.tolist()
         if categorical_columns:
-            categorical_columns = categorical_data.columns.tolist()
-            categorical_columns.remove(self.Y_name)
+            categorical_data = pd.concat([self.Y, categorical_data], axis=1)
 
         # get information gain for each continuous feature
         feature_results = {}
@@ -216,6 +214,7 @@ class Node:
     def grow_tree(self):
         # pick best attribute
         self.pick_attribute()
+        # print(self.best_feature)
 
         # create nodes if continuous best feature
         if self.concat_data[self.best_feature].dtypes in self.numerics:
@@ -253,7 +252,7 @@ class Node:
                     )})
                     self.children.append(new_nodes_dict[i])
                     new_nodes_dict[i].grow_tree()
-            
+
         # create nodes if categorical best feature
         else:
             if self.is_root:
