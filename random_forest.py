@@ -120,7 +120,7 @@ if __name__ == "__main__":
     # X_train, X_test, Y_train, Y_test = train_test_split(blobs_X, blobs_Y, test_size = 0.2)
 
     # import digit data
-    digit = pd.read_csv('data\\digit_data.csv')
+    digit = pd.read_csv('data\\digit_bins.csv')
     digit_X = digit.drop(columns='label', axis=1)
     digit_Y = digit['label']
     X_train, X_test, Y_train, Y_test = train_test_split(digit_X, digit_Y, test_size = 0.2)
@@ -133,5 +133,5 @@ if __name__ == "__main__":
 
     # train random forest and predict results
     RF = RandomForest()
-    RF.grow_forest(X_train, Y_train, num_trees=100, min_samples=10, max_depth=5)
+    RF.grow_forest(X_train, Y_train, num_trees=50, min_samples=10, max_depth=5)
     print(RF.predict(X_test, Y_test)[1])
