@@ -1,3 +1,4 @@
+from sklearn.model_selection import train_test_split
 from decision_tree import DecisionTree
 import pandas as pd
 import numpy as np
@@ -73,19 +74,45 @@ class RandomForest:
                 forest_predictions.remove(pred)
         forest_predictions_df = pd.DataFrame(forest_predictions)
 
+        # determine final predictions based on majority vote from forest
+        prediction_list = []
+        for col in forest_predictions_df.columns.tolist():
+            vote = forest_predictions_df[col].mode()
+            prediction_list.append(vote[0])
+
+        # count correct answers and return model accuracy
+        total_correct = 0
+        total_number = len(Y_test)
+        for idx, prediction in enumerate(prediction_list):
+            if prediction == Y_test.iloc[idx]:
+                total_correct += 1
+        return (prediction_list, (total_correct/total_number))
+
 
 if __name__ == "__main__":
 
-    # import train and test data
-    golf_data = pd.read_csv('data\\golf_data2.csv')
-    X_train = golf_data.drop(columns='PlayGolf', axis=1)
-    Y_train = golf_data['PlayGolf']
+    # # import train and test data
+    # golf_data = pd.read_csv('data\\golf_data.csv')
+    # X_train = golf_data.drop(columns='PlayGolf', axis=1)
+    # Y_train = golf_data['PlayGolf']
 
-    golf_test = pd.read_csv('data\\golf_data2_test.csv')
-    X_test = golf_test.drop(columns='PlayGolf', axis=1)
-    Y_test = golf_test['PlayGolf']
+    # golf_test = pd.read_csv('data\\golf_data_test.csv')
+    # X_test = golf_test.drop(columns='PlayGolf', axis=1)
+    # Y_test = golf_test['PlayGolf']
+
+    # import spirals data
+    spirals = pd.read_csv('data\\spirals.csv')
+    spirals_X = spirals.drop(columns='class', axis=1)
+    spirals_Y = spirals['class']
+    X_train, X_test, Y_train, Y_test = train_test_split(spirals_X, spirals_Y, test_size = 0.2)
+
+    # drop indexes
+    X_train.reset_index(drop=True, inplace=True)
+    Y_train.reset_index(drop=True, inplace=True)
+    X_test.reset_index(drop=True, inplace=True)
+    Y_test.reset_index(drop=True, inplace=True)
 
     # train random forest and predict results
     RF = RandomForest()
-    RF.grow_forest(X_train, Y_train, num_trees=50)
+    RF.grow_forest(X_train, Y_train, num_trees=10, num_features=2)
     print(RF.predict(X_test, Y_test))

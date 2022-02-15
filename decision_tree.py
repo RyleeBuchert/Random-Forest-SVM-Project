@@ -60,124 +60,130 @@ class Node:
     def pick_attribute(self):
 
         # split data into categorical and continuous dataframes
-        continuous_data = self.concat_data.select_dtypes(include=self.numerics)
+        continuous_data = self.X.select_dtypes(include=self.numerics)
         continuous_columns = continuous_data.columns.tolist()
-        continuous_data = pd.concat([self.Y, continuous_data], axis=1)
+        if continuous_columns:
+            continuous_columns = continuous_data.columns.tolist()
+            continuous_data = pd.concat([self.Y, continuous_data], axis=1)
         
-        categorical_data = self.concat_data.drop(columns=continuous_columns, axis=1)
+        categorical_data = self.X.drop(columns=continuous_columns, axis=1)
         categorical_columns = categorical_data.columns.tolist()
-        categorical_columns.remove(self.Y_name)
+        if categorical_columns:
+            categorical_columns = categorical_data.columns.tolist()
+            categorical_columns.remove(self.Y_name)
 
         # get information gain for each continuous feature
         feature_results = {}
         self.feature_splits = {}
-        for i in continuous_columns:
-            # get sorted set of all values in continuous column
-            sorted_vals_set = set(sorted(continuous_data[i]))
-            total_count = len(self.concat_data)
+        if continuous_columns:
+            for i in continuous_columns:
+                # get sorted set of all values in continuous column
+                sorted_vals_set = set(sorted(continuous_data[i]))
+                total_count = len(self.concat_data)
 
-            continuous_split_results = {}
-            for j in sorted_vals_set:
-                # split data into subsets for each value split
-                remainder = 0
-                smaller_data = continuous_data[continuous_data[i] <= j]
-                larger_data = continuous_data[continuous_data[i] > j]
+                continuous_split_results = {}
+                for j in sorted_vals_set:
+                    # split data into subsets for each value split
+                    remainder = 0
+                    smaller_data = continuous_data[continuous_data[i] <= j]
+                    larger_data = continuous_data[continuous_data[i] > j]
 
-                # calculate cardinality of split data
-                smaller_cardinality = (len(smaller_data) / total_count)
-                larger_cardinality = (len(larger_data) / total_count)
+                    # calculate cardinality of split data
+                    smaller_cardinality = (len(smaller_data) / total_count)
+                    larger_cardinality = (len(larger_data) / total_count)
 
-                # get class probability list
-                smaller_class_probs = []
-                larger_class_probs = []
-                for k in self.classes:
-                    smaller_count = len(smaller_data.loc[smaller_data[self.Y_name] == k])
-                    if len(smaller_data) > 0:
-                        smaller_class_probs.append(smaller_count / len(smaller_data))
-                    else:
-                        smaller_class_probs.append(0)
+                    # get class probability list
+                    smaller_class_probs = []
+                    larger_class_probs = []
+                    for k in self.classes:
+                        smaller_count = len(smaller_data.loc[smaller_data[self.Y_name] == k])
+                        if len(smaller_data) > 0:
+                            smaller_class_probs.append(smaller_count / len(smaller_data))
+                        else:
+                            smaller_class_probs.append(0)
 
-                    larger_count = len(larger_data.loc[larger_data[self.Y_name] == k])
-                    if len(larger_data) > 0:
-                        larger_class_probs.append(larger_count / len(larger_data))
-                    else:
-                        larger_class_probs.append(0)
+                        larger_count = len(larger_data.loc[larger_data[self.Y_name] == k])
+                        if len(larger_data) > 0:
+                            larger_class_probs.append(larger_count / len(larger_data))
+                        else:
+                            larger_class_probs.append(0)
 
-                # calculate remainder
-                if self.split_method == 'Cross-Entropy':
-                    remainder += (smaller_cardinality * self.cross_entropy(smaller_class_probs)) + (larger_cardinality * self.cross_entropy(larger_class_probs))
-                elif self.split_method == 'GINI':
-                    remainder += (smaller_cardinality * self.GINI_index(smaller_class_probs)) + (larger_cardinality * self.GINI_index(larger_class_probs))
-                elif self.split_method == 'Misclassification':
-                    remainder += (smaller_cardinality * self.misclassification(smaller_class_probs)) + (larger_cardinality * self.misclassification(larger_class_probs))
+                    # calculate remainder
+                    if self.split_method == 'Cross-Entropy':
+                        remainder += (smaller_cardinality * self.cross_entropy(smaller_class_probs)) + (larger_cardinality * self.cross_entropy(larger_class_probs))
+                    elif self.split_method == 'GINI':
+                        remainder += (smaller_cardinality * self.GINI_index(smaller_class_probs)) + (larger_cardinality * self.GINI_index(larger_class_probs))
+                    elif self.split_method == 'Misclassification':
+                        remainder += (smaller_cardinality * self.misclassification(smaller_class_probs)) + (larger_cardinality * self.misclassification(larger_class_probs))
+                    
+                    continuous_split_results.update({j: remainder})
                 
-                continuous_split_results.update({j: remainder})
-            
-            # get best continuous split
-            best_split_value = min(continuous_split_results, key=continuous_split_results.get)
-            self.feature_splits.update({i: best_split_value})
+                # get best continuous split
+                best_split_value = min(continuous_split_results, key=continuous_split_results.get)
+                self.feature_splits.update({i: best_split_value})
 
-            # get information gain for best continuous value
-            h_prior_list = []
-            for k in self.classes:
-                h_prior_list.append(self.class_count_dictionary[k])
-            
-            if self.split_method == 'Cross-Entropy':
-                h_prior = self.cross_entropy(h_prior_list)
-            elif self.split_method == 'GINI':
-                h_prior = self.GINI_index(h_prior_list)
-            elif self.split_method == 'Misclassification':
-                h_prior = self.misclassification(h_prior_list)
-            
-            information_gain = h_prior - continuous_split_results[best_split_value]
-            feature_results.update({i: information_gain})
+                # get information gain for best continuous value
+                h_prior_list = []
+                for k in self.classes:
+                    h_prior_list.append(self.class_count_dictionary[k])
+                
+                if self.split_method == 'Cross-Entropy':
+                    h_prior = self.cross_entropy(h_prior_list)
+                elif self.split_method == 'GINI':
+                    h_prior = self.GINI_index(h_prior_list)
+                elif self.split_method == 'Misclassification':
+                    h_prior = self.misclassification(h_prior_list)
+                
+                information_gain = h_prior - continuous_split_results[best_split_value]
+                feature_results.update({i: information_gain})
 
         # get information gain for each categorical feature
-        for i in categorical_columns:
-            # get categories for each feature and number of instances
-            feature_categories = np.unique(self.X[i])
-            total_count = len(self.concat_data)
+        if categorical_columns:
+            for i in categorical_columns:
+                # get categories for each feature and number of instances
+                feature_categories = np.unique(self.X[i])
+                total_count = len(self.concat_data)
 
-            remainder = 0
-            subset_dictionary = {}
-            categorical_count_dict = {}
-            for j in feature_categories:
-                # split data into subsets for each feature category
-                subset_dictionary.update({j: self.concat_data.loc[self.concat_data[i] == j]})
-                categorical_count_dict.update({j: {}})
+                remainder = 0
+                subset_dictionary = {}
+                categorical_count_dict = {}
+                for j in feature_categories:
+                    # split data into subsets for each feature category
+                    subset_dictionary.update({j: self.concat_data.loc[self.concat_data[i] == j]})
+                    categorical_count_dict.update({j: {}})
+                    
+                    # calculate cardinality
+                    categorical_count_dict[j].update({'Total': len(subset_dictionary[j])})
+                    category_cardinality = (categorical_count_dict[j]['Total'] / total_count)
+
+                    # get class probability list
+                    class_probs = []
+                    for k in self.classes:
+                        categorical_count_dict[j].update({k: len(subset_dictionary[j].loc[subset_dictionary[j][self.Y_name] == k])})
+                        class_probs.append(categorical_count_dict[j][k] / categorical_count_dict[j]['Total'])
+
+                    # calculate remainder
+                    if self.split_method == 'Cross-Entropy':
+                        remainder += category_cardinality * self.cross_entropy(class_probs)
+                    elif self.split_method == 'GINI':
+                        remainder += category_cardinality * self.GINI_index(class_probs)
+                    elif self.split_method == 'Misclassification':
+                        remainder += category_cardinality * self.misclassification(class_probs)
                 
-                # calculate cardinality
-                categorical_count_dict[j].update({'Total': len(subset_dictionary[j])})
-                category_cardinality = (categorical_count_dict[j]['Total'] / total_count)
-
-                # get class probability list
-                class_probs = []
+                # get information gain for each attribute
+                h_prior_list = []
                 for k in self.classes:
-                    categorical_count_dict[j].update({k: len(subset_dictionary[j].loc[subset_dictionary[j][self.Y_name] == k])})
-                    class_probs.append(categorical_count_dict[j][k] / categorical_count_dict[j]['Total'])
-
-                # calculate remainder
+                    h_prior_list.append(self.class_count_dictionary[k])
+                
                 if self.split_method == 'Cross-Entropy':
-                    remainder += category_cardinality * self.cross_entropy(class_probs)
+                    h_prior = self.cross_entropy(h_prior_list)
                 elif self.split_method == 'GINI':
-                    remainder += category_cardinality * self.GINI_index(class_probs)
+                    h_prior = self.GINI_index(h_prior_list)
                 elif self.split_method == 'Misclassification':
-                    remainder += category_cardinality * self.misclassification(class_probs)
-            
-            # get information gain for each attribute
-            h_prior_list = []
-            for k in self.classes:
-                h_prior_list.append(self.class_count_dictionary[k])
-            
-            if self.split_method == 'Cross-Entropy':
-                h_prior = self.cross_entropy(h_prior_list)
-            elif self.split_method == 'GINI':
-                h_prior = self.GINI_index(h_prior_list)
-            elif self.split_method == 'Misclassification':
-                h_prior = self.misclassification(h_prior_list)
-            
-            information_gain = h_prior - remainder
-            feature_results.update({i: information_gain})
+                    h_prior = self.misclassification(h_prior_list)
+                
+                information_gain = h_prior - remainder
+                feature_results.update({i: information_gain})
         
         # return feature with the highest information gain
         self.best_feature = max(feature_results, key=feature_results.get)
