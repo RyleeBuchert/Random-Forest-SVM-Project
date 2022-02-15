@@ -15,7 +15,10 @@ class RandomForest:
             X = None, # X_train
             Y = None, # Y_train
             num_trees = None, # Number of trees in forest
-            num_features = None # Number of features trained on
+            num_features = None, # Number of features trained on
+            min_samples = None, # Min split samples for trees
+            max_depth = None, # Max depth for decision trees
+            split_method = None # Split method for trees
             ):
         
         # get X and Y dataframes
@@ -35,6 +38,9 @@ class RandomForest:
         # get hyparameters
         self.forest_size = num_trees if num_trees else 100
         self.feature_subset = num_features if num_features else int(np.sqrt(self.num_features))
+        self.min_split_samples = min_samples if min_samples else 10
+        self.max_tree_depth = max_depth if max_depth else 5
+        self.split_method = split_method if split_method else 'Cross-Entropy'
 
         # create decision trees and grow forest
         for i in range(self.forest_size):
@@ -42,24 +48,25 @@ class RandomForest:
             X_train = tree_sample.drop(columns=self.Y_name, axis=1)
             Y_train = tree_sample[self.Y_name]
             tree = DecisionTree()
-            tree.build_tree(X_train, Y_train, min_samples=4, max_depth=3)
+            tree.build_tree(X = X_train,
+                            Y = Y_train,
+                            min_samples = self.min_split_samples,
+                            max_depth = self.max_tree_depth,
+                            split_method = self.split_method
+                            )
             self.forest.append(tree)
+            print(i)
 
     # get bootstrap aggregation sample
     def bootstrap_sample(self):
         data_list = []
         indexes = self.X.index.tolist()
-        for i in range(self.sample_size):
-            temp_list = []
-            idx = random.choice(indexes)
-            row = self.concat_data.iloc[[idx]]
-            for j in self.columns:
-                temp_list.append(row.loc[idx][j])
-            data_list.append(temp_list)
-        data_sample = pd.DataFrame(data_list, columns=self.columns)
         col_subset = random.sample(self.features, self.feature_subset)
         col_subset.insert(0, self.Y_name)
-        return data_sample[col_subset]
+        temp_df = self.concat_data[col_subset] 
+        for i in range(self.sample_size):    
+            data_list.append(temp_df.loc[random.choice(indexes), :].values.flatten().tolist())
+        return pd.DataFrame(data_list, columns=col_subset)
 
     # predict random forest accuracy (need to finish)
     def predict(self, X_test, Y_test):
@@ -100,11 +107,23 @@ if __name__ == "__main__":
     # X_test = golf_test.drop(columns='PlayGolf', axis=1)
     # Y_test = golf_test['PlayGolf']
 
-    # import spirals data
-    spirals = pd.read_csv('data\\spirals.csv')
-    spirals_X = spirals.drop(columns='class', axis=1)
-    spirals_Y = spirals['class']
-    X_train, X_test, Y_train, Y_test = train_test_split(spirals_X, spirals_Y, test_size = 0.2)
+    # # import spirals data
+    # spirals = pd.read_csv('data\\spirals.csv')
+    # spirals_X = spirals.drop(columns='class', axis=1)
+    # spirals_Y = spirals['class']
+    # X_train, X_test, Y_train, Y_test = train_test_split(spirals_X, spirals_Y, test_size = 0.2)
+
+    # # import blobs data
+    # blobs = pd.read_csv('data\\blobs.csv')
+    # blobs_X = blobs.drop(columns='class', axis=1)
+    # blobs_Y = blobs['class']
+    # X_train, X_test, Y_train, Y_test = train_test_split(blobs_X, blobs_Y, test_size = 0.2)
+
+    # import digit data
+    digit = pd.read_csv('data\\digit_data.csv')
+    digit_X = digit.drop(columns='label', axis=1)
+    digit_Y = digit['label']
+    X_train, X_test, Y_train, Y_test = train_test_split(digit_X, digit_Y, test_size = 0.2)
 
     # drop indexes
     X_train.reset_index(drop=True, inplace=True)
@@ -114,5 +133,5 @@ if __name__ == "__main__":
 
     # train random forest and predict results
     RF = RandomForest()
-    RF.grow_forest(X_train, Y_train, num_trees=10, num_features=2)
-    print(RF.predict(X_test, Y_test))
+    RF.grow_forest(X_train, Y_train, num_trees=100, min_samples=10, max_depth=5)
+    print(RF.predict(X_test, Y_test)[1])
