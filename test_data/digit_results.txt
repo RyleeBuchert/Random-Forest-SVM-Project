@@ -1,0 +1,9 @@
+Digit Data: Forest Size = 25, Split = Misclassification, Subset Size = 5, Model Accuracy = 0.6997619047619048
+Digit Data: Forest Size = 25, Split = Misclassification, Subset Size = 10, Model Accuracy = 0.7458333333333333
+Digit Data: Forest Size = 25, Split = Misclassification, Subset Size = 25, Model Accuracy = 0.7833333333333333
+Digit Data: Forest Size = 25, Split = GINI, Subset Size = 5, Model Accuracy = 0.6886904761904762
+Digit Data: Forest Size = 25, Split = GINI, Subset Size = 10, Model Accuracy = 0.7326190476190476
+Digit Data: Forest Size = 25, Split = GINI, Subset Size = 25, Model Accuracy = 0.8110714285714286
+Digit Data: Forest Size = 25, Split = Cross-Entropy, Subset Size = 5, Model Accuracy = 0.6726190476190477
+Digit Data: Forest Size = 25, Split = Cross-Entropy, Subset Size = 10, Model Accuracy = 0.7323809523809524
+Digit Data: Forest Size = 25, Split = Cross-Entropy, Subset Size = 25, Model Accuracy = 0.7685714285714286

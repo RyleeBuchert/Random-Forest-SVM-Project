@@ -1,0 +1,9 @@
+Spirals Data: Forest Size = 50, Split = Misclassification, Subset Size = 2, Model Accuracy = 0.84
+Spirals Data: Forest Size = 50, Split = GINI, Subset Size = 2, Model Accuracy = 0.69
+Spirals Data: Forest Size = 50, Split = Cross-Entropy, Subset Size = 2, Model Accuracy = 0.64
+Spirals Data: Forest Size = 100, Split = Misclassification, Subset Size = 2, Model Accuracy = 0.83
+Spirals Data: Forest Size = 100, Split = GINI, Subset Size = 2, Model Accuracy = 0.665
+Spirals Data: Forest Size = 100, Split = Cross-Entropy, Subset Size = 2, Model Accuracy = 0.61
+Spirals Data: Forest Size = 150, Split = Misclassification, Subset Size = 2, Model Accuracy = 0.9
+Spirals Data: Forest Size = 150, Split = GINI, Subset Size = 2, Model Accuracy = 0.75
+Spirals Data: Forest Size = 150, Split = Cross-Entropy, Subset Size = 2, Model Accuracy = 0.66

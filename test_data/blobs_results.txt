@@ -1,0 +1,9 @@
+Blobs Data: Forest Size = 50, Split = Misclassification, Subset Size = 2, Model Accuracy = 1.0
+Blobs Data: Forest Size = 50, Split = GINI, Subset Size = 2, Model Accuracy = 0.9875
+Blobs Data: Forest Size = 50, Split = Cross-Entropy, Subset Size = 2, Model Accuracy = 1.0
+Blobs Data: Forest Size = 100, Split = Misclassification, Subset Size = 2, Model Accuracy = 1.0
+Blobs Data: Forest Size = 100, Split = GINI, Subset Size = 2, Model Accuracy = 1.0
+Blobs Data: Forest Size = 100, Split = Cross-Entropy, Subset Size = 2, Model Accuracy = 0.9875
+Blobs Data: Forest Size = 150, Split = Misclassification, Subset Size = 2, Model Accuracy = 1.0
+Blobs Data: Forest Size = 150, Split = GINI, Subset Size = 2, Model Accuracy = 1.0
+Blobs Data: Forest Size = 150, Split = Cross-Entropy, Subset Size = 2, Model Accuracy = 1.0

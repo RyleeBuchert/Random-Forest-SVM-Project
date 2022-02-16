@@ -16,7 +16,9 @@ class Node:
             depth = None, # Depth of current node
             max_depth = None, # Max depth of tree
             min_samples = None, # Min samples to split on
-            split = None # Split method (Entropy, GINI, etc.)
+            split = None, # Split method (Entropy, GINI, etc.)
+            feature_list = None, # Feature list for RF splits
+            feature_subset_size = None, # Size of feature subsets
             ):
 
         # get X and Y dataframes
@@ -32,9 +34,11 @@ class Node:
         self.feature_category = feature_cat if feature_cat else None
         self.best_feature = None
         self.children = []
+        self.rf_feature_list = feature_list if feature_list else None
+        self.size_feature_subset = feature_subset_size if feature_subset_size else None
 
         # stopping point/split information
-        self.depth = depth if depth else 0
+        self.depth = depth if depth else 1
         self.max_depth = max_depth
         self.min_split_samples = min_samples
         self.split_method = split
@@ -59,16 +63,31 @@ class Node:
     # method to find the best feature using cross-entropy loss
     def pick_attribute(self):
 
-        # split data into categorical and continuous dataframes
-        continuous_data = self.X.select_dtypes(include=self.numerics)
-        continuous_columns = continuous_data.columns.tolist()
-        if continuous_columns:
-            continuous_data = pd.concat([self.Y, continuous_data], axis=1)
-        
-        categorical_data = self.X.drop(columns=continuous_columns, axis=1)
-        categorical_columns = categorical_data.columns.tolist()
-        if categorical_columns:
-            categorical_data = pd.concat([self.Y, categorical_data], axis=1)
+        # get random feature subset for random forest model
+        if self.rf_feature_list:
+            random_features = random.sample(self.rf_feature_list, self.size_feature_subset)
+            X_subset = self.X[random_features]
+
+            continuous_data = X_subset.select_dtypes(include=self.numerics)
+            continuous_columns = continuous_data.columns.tolist()
+            if continuous_columns:
+                continuous_data = pd.concat([self.Y, continuous_data], axis=1)
+
+            categorical_data = X_subset.drop(columns=continuous_columns, axis=1)
+            categorical_columns = categorical_data.columns.tolist()
+            if categorical_columns:
+                categorical_data = pd.concat([self.Y, categorical_data], axis=1)
+        else:
+            # split data into categorical and continuous dataframes
+            continuous_data = self.X.select_dtypes(include=self.numerics)
+            continuous_columns = continuous_data.columns.tolist()
+            if continuous_columns:
+                continuous_data = pd.concat([self.Y, continuous_data], axis=1)
+            
+            categorical_data = self.X.drop(columns=continuous_columns, axis=1)
+            categorical_columns = categorical_data.columns.tolist()
+            if categorical_columns:
+                categorical_data = pd.concat([self.Y, categorical_data], axis=1)
 
         # get information gain for each continuous feature
         feature_results = {}
@@ -235,7 +254,9 @@ class Node:
                         depth = self.depth + 1,
                         max_depth = self.max_depth,
                         min_samples = self.min_split_samples,
-                        split = self.split_method
+                        split = self.split_method,
+                        feature_list = self.rf_feature_list,
+                        feature_subset_size = self.size_feature_subset
                     )})
                     self.children.append(new_nodes_dict[i])
                 # else, create a new decision node and continue recursive grow
@@ -248,7 +269,9 @@ class Node:
                         depth = self.depth + 1,
                         max_depth = self.max_depth,
                         min_samples = self.min_split_samples,
-                        split = self.split_method
+                        split = self.split_method,
+                        feature_list = self.rf_feature_list,
+                        feature_subset_size = self.size_feature_subset
                     )})
                     self.children.append(new_nodes_dict[i])
                     new_nodes_dict[i].grow_tree()
@@ -279,7 +302,9 @@ class Node:
                         depth = self.depth + 1,
                         max_depth = self.max_depth,
                         min_samples = self.min_split_samples,
-                        split = self.split_method
+                        split = self.split_method,
+                        feature_list = self.rf_feature_list,
+                        feature_subset_size = self.size_feature_subset
                         )})
                     self.children.append(new_nodes_dict[i])
                 # else, create a new decision node and continue recursive grow
@@ -292,7 +317,9 @@ class Node:
                         depth = self.depth + 1,
                         max_depth = self.max_depth,
                         min_samples = self.min_split_samples,
-                        split = self.split_method
+                        split = self.split_method,
+                        feature_list = self.rf_feature_list,
+                        feature_subset_size = self.size_feature_subset
                         )})
                     self.children.append(new_nodes_dict[i])
                     new_nodes_dict[i].grow_tree()
@@ -307,18 +334,22 @@ class DecisionTree:
         self.root = None
     
     # method to build tree
-    def build_tree(self, X, Y, max_depth=None, min_samples=None, split_method=None): # add hyperparameters
+    def build_tree(self, X, Y, min_samples=None, max_depth=None, split_method=None, feature_list=None, feat_subset_size=None):
         self.Y_name = Y.name
         self.max_depth = max_depth if max_depth else 10
         self.min_split_samples = min_samples if min_samples else 20
         self.split_method = split_method if split_method else 'Cross-Entropy'
+        self.rf_feature_list = feature_list if feature_list else None
+        self.feature_subset_size = feat_subset_size
         if self.root is None:
             self.root = Node(is_root = True,
                             X = X,
                             Y = Y,
                             max_depth = self.max_depth,
                             min_samples = self.min_split_samples,
-                            split = self.split_method)
+                            split = self.split_method,
+                            feature_list=self.rf_feature_list,
+                            feature_subset_size=self.feature_subset_size)
         self.root.grow_tree()
     
     # method to predict results and get model accuracy
