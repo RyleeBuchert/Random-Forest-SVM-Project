@@ -48,14 +48,14 @@ def blobs(n, center, cov):
         holder.append(np.concatenate((np.random.multivariate_normal(mean, sigma, n), np.ones((n, 1), dtype=int) * cl), axis=1))
     df = pd.DataFrame(np.random.permutation(np.concatenate(tuple(holder), axis=0)), columns=list(range(center[0].shape[0])) + ["class"])
     df["class"] = df["class"].astype(int)
-    df.to_csv("blobs.csv")
+    df.to_csv("data\\blobs5.csv")
     return df
 
 
 if __name__ == "__main__":
-    data = spirals(n=1000, cycles=2, sd=0.05)
-    data = blobs(200, [np.array([1, 2]), np.array([5, 6])], [np.array([[0.25, 0], [0, 0.25]])] * 2)
-    # plt.scatter(data[0], data[1], s=5, c=data["class"])
-    # plt.show()
+    # data = spirals(n=1000, cycles=2, sd=0.05)
+    data = blobs(300, [np.array([1, 2]), np.array([5, 6]), np.array([7, 2]), np.array([2.5, 8]), np.array([4, 4])], [np.array([[0.25, 0], [0, 0.25]])] * 5)
+    plt.scatter(data[0], data[1], s=5, c=data["class"])
+    plt.show()
 
 
