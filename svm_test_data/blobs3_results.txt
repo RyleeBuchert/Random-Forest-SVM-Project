@@ -1,0 +1,12 @@
+Blobs3 Data: Kernel = linear, C = 1, Model Accuracy = 0.9994444444444444
+Blobs3 Data: Kernel = linear, C = 50, Model Accuracy = 1.0
+Blobs3 Data: Kernel = linear, C = 100, Model Accuracy = 0.9988888888888887
+Blobs3 Data: Kernel = linear, C = 1000, Model Accuracy = 0.9988888888888889
+Blobs3 Data: Kernel = poly, C = 1, Model Accuracy = 0.32555555555555554
+Blobs3 Data: Kernel = poly, C = 50, Model Accuracy = 0.8150000000000001
+Blobs3 Data: Kernel = poly, C = 100, Model Accuracy = 0.8766666666666666
+Blobs3 Data: Kernel = poly, C = 1000, Model Accuracy = 0.928888888888889
+Blobs3 Data: Kernel = rbf, C = 1, Model Accuracy = 0.3344444444444445
+Blobs3 Data: Kernel = rbf, C = 50, Model Accuracy = 0.9800000000000001
+Blobs3 Data: Kernel = rbf, C = 100, Model Accuracy = 1.0
+Blobs3 Data: Kernel = rbf, C = 1000, Model Accuracy = 0.9977777777777778

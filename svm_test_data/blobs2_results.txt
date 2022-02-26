@@ -1,0 +1,12 @@
+Blobs2 Data: Kernel = linear, C = 1, Model Accuracy = 1.0
+Blobs2 Data: Kernel = linear, C = 50, Model Accuracy = 1.0
+Blobs2 Data: Kernel = linear, C = 100, Model Accuracy = 1.0
+Blobs2 Data: Kernel = linear, C = 1000, Model Accuracy = 1.0
+Blobs2 Data: Kernel = poly, C = 1, Model Accuracy = 1.0
+Blobs2 Data: Kernel = poly, C = 50, Model Accuracy = 1.0
+Blobs2 Data: Kernel = poly, C = 100, Model Accuracy = 1.0
+Blobs2 Data: Kernel = poly, C = 1000, Model Accuracy = 1.0
+Blobs2 Data: Kernel = rbf, C = 1, Model Accuracy = 1.0
+Blobs2 Data: Kernel = rbf, C = 50, Model Accuracy = 1.0
+Blobs2 Data: Kernel = rbf, C = 100, Model Accuracy = 1.0
+Blobs2 Data: Kernel = rbf, C = 1000, Model Accuracy = 1.0

@@ -1,0 +1,12 @@
+Blobs5 Data: Kernel = linear, C = 1, Model Accuracy = 0.9903333333333333
+Blobs5 Data: Kernel = linear, C = 50, Model Accuracy = 0.9930000000000001
+Blobs5 Data: Kernel = linear, C = 100, Model Accuracy = 0.9926666666666668
+Blobs5 Data: Kernel = linear, C = 1000, Model Accuracy = 0.9903333333333334
+Blobs5 Data: Kernel = poly, C = 1, Model Accuracy = 0.189
+Blobs5 Data: Kernel = poly, C = 50, Model Accuracy = 0.484
+Blobs5 Data: Kernel = poly, C = 100, Model Accuracy = 0.635
+Blobs5 Data: Kernel = poly, C = 1000, Model Accuracy = 0.8443333333333334
+Blobs5 Data: Kernel = rbf, C = 1, Model Accuracy = 0.182
+Blobs5 Data: Kernel = rbf, C = 50, Model Accuracy = 0.32733333333333337
+Blobs5 Data: Kernel = rbf, C = 100, Model Accuracy = 0.5723333333333334
+Blobs5 Data: Kernel = rbf, C = 1000, Model Accuracy = 0.9889999999999999

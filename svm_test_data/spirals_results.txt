@@ -1,0 +1,12 @@
+Spirals Data: Kernel = linear, C = 1, Model Accuracy = 0.49850000000000005
+Spirals Data: Kernel = linear, C = 50, Model Accuracy = 0.49349999999999994
+Spirals Data: Kernel = linear, C = 100, Model Accuracy = 0.4965
+Spirals Data: Kernel = linear, C = 1000, Model Accuracy = 0.5025000000000001
+Spirals Data: Kernel = poly, C = 1, Model Accuracy = 0.45549999999999996
+Spirals Data: Kernel = poly, C = 50, Model Accuracy = 0.46499999999999997
+Spirals Data: Kernel = poly, C = 100, Model Accuracy = 0.45999999999999996
+Spirals Data: Kernel = poly, C = 1000, Model Accuracy = 0.4579999999999999
+Spirals Data: Kernel = rbf, C = 1, Model Accuracy = 0.5919999999999999
+Spirals Data: Kernel = rbf, C = 50, Model Accuracy = 0.698
+Spirals Data: Kernel = rbf, C = 100, Model Accuracy = 0.8314999999999999
+Spirals Data: Kernel = rbf, C = 1000, Model Accuracy = 0.968

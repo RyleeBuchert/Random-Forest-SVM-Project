@@ -1,0 +1,12 @@
+Adult Data: Kernel = linear, C = 0.5, Model Accuracy = 0.5378151260504201
+Adult Data: Kernel = linear, C = 1, Model Accuracy = 0.5295743504698729
+Adult Data: Kernel = linear, C = 50, Model Accuracy = 0.4865238424326192
+Adult Data: Kernel = linear, C = 100, Model Accuracy = 0.5863557858376511
+Adult Data: Kernel = poly, C = 0.5, Model Accuracy = 0.7904967602591793
+Adult Data: Kernel = poly, C = 1, Model Accuracy = 0.7935222672064778
+Adult Data: Kernel = poly, C = 50, Model Accuracy = 0.8128161888701517
+Adult Data: Kernel = poly, C = 100, Model Accuracy = 0.7890295358649789
+Adult Data: Kernel = rbf, C = 0.5, Model Accuracy = 0.8078947368421052
+Adult Data: Kernel = rbf, C = 1, Model Accuracy = 0.7861842105263158
+Adult Data: Kernel = rbf, C = 50, Model Accuracy = 0.7860082304526749
+Adult Data: Kernel = rbf, C = 100, Model Accuracy = 0.7628865979381443

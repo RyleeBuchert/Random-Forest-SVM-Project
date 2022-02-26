@@ -1,0 +1,12 @@
+Blobs4 Data: Kernel = linear, C = 1, Model Accuracy = 1.0
+Blobs4 Data: Kernel = linear, C = 50, Model Accuracy = 1.0
+Blobs4 Data: Kernel = linear, C = 100, Model Accuracy = 1.0
+Blobs4 Data: Kernel = linear, C = 1000, Model Accuracy = 1.0
+Blobs4 Data: Kernel = poly, C = 1, Model Accuracy = 0.23916666666666667
+Blobs4 Data: Kernel = poly, C = 50, Model Accuracy = 0.7391666666666665
+Blobs4 Data: Kernel = poly, C = 100, Model Accuracy = 0.8391666666666666
+Blobs4 Data: Kernel = poly, C = 1000, Model Accuracy = 0.9133333333333334
+Blobs4 Data: Kernel = rbf, C = 1, Model Accuracy = 0.23458333333333337
+Blobs4 Data: Kernel = rbf, C = 50, Model Accuracy = 0.6679166666666666
+Blobs4 Data: Kernel = rbf, C = 100, Model Accuracy = 0.8724999999999999
+Blobs4 Data: Kernel = rbf, C = 1000, Model Accuracy = 1.0

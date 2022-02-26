@@ -1,0 +1,12 @@
+Car Data: Kernel = linear, C = 1, Model Accuracy = 0.8502890173410403
+Car Data: Kernel = linear, C = 50, Model Accuracy = 0.5725433526011561
+Car Data: Kernel = linear, C = 100, Model Accuracy = 0.5141618497109827
+Car Data: Kernel = linear, C = 1000, Model Accuracy = 0.6294797687861272
+Car Data: Kernel = poly, C = 1, Model Accuracy = 0.6971098265895954
+Car Data: Kernel = poly, C = 50, Model Accuracy = 0.6855491329479768
+Car Data: Kernel = poly, C = 100, Model Accuracy = 0.6976878612716764
+Car Data: Kernel = poly, C = 1000, Model Accuracy = 0.7164739884393063
+Car Data: Kernel = rbf, C = 1, Model Accuracy = 0.6942196531791907
+Car Data: Kernel = rbf, C = 50, Model Accuracy = 0.6959537572254335
+Car Data: Kernel = rbf, C = 100, Model Accuracy = 0.7005780346820809
+Car Data: Kernel = rbf, C = 1000, Model Accuracy = 0.7101156069364161

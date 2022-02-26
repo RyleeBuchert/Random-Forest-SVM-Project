@@ -1,0 +1,12 @@
+Digit Data: Kernel = linear, C = 1, Model Accuracy = 0.10261904761904762
+Digit Data: Kernel = linear, C = 50, Model Accuracy = 0.12261904761904761
+Digit Data: Kernel = linear, C = 100, Model Accuracy = 0.1180952380952381
+Digit Data: Kernel = linear, C = 1000, Model Accuracy = 0.12297619047619048
+Digit Data: Kernel = poly, C = 1, Model Accuracy = 0.11642857142857142
+Digit Data: Kernel = poly, C = 50, Model Accuracy = 0.11035714285714286
+Digit Data: Kernel = poly, C = 100, Model Accuracy = 0.10928571428571429
+Digit Data: Kernel = poly, C = 1000, Model Accuracy = 0.1155952380952381
+Digit Data: Kernel = rbf, C = 1, Model Accuracy = 0.1025
+Digit Data: Kernel = rbf, C = 50, Model Accuracy = 0.0994047619047619
+Digit Data: Kernel = rbf, C = 100, Model Accuracy = 0.09726190476190476
+Digit Data: Kernel = rbf, C = 1000, Model Accuracy = 0.1005952380952381
